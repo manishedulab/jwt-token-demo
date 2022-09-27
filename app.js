@@ -56,7 +56,7 @@ function verifyToken(req, res, next) {
     const bearer = bearerHeader.split(' ');
     // Get token from array
     console.log("bearer $$$$ ",bearer);
-    const bearerToken = bearer[0];
+    const bearerToken = bearer[1];
     console.log("bearerToken @@@@ ",bearerToken);
     // Set the token
     req.token = bearerToken;

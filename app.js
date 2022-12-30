@@ -1,75 +1,72 @@
 const express = require('express');
+const app = express();
 const jwt = require('jsonwebtoken');
 
-const app = express();
 
-app.get('/api', (req, res) => {
-  res.json({
-    message: 'Welcome to the API'
-  });
+app.get('/',(req,res)=>{
+
+  res.send('Hello World!');
+
+})
+
+app.post('/api',(req,res)=>{
+const user={
+  name: 'manish',
+  lname:'vishwakarma',
+  email:'manish@gmail.com',
+  password: '123456',
+  role: 'admin'
+}
+jwt.sign({user},'privatekey',{expiresIn:'3600s'},(err,token)=>{
+console.log("token==>"+token)
+res.json({
+  token
+})
+});
 });
 
-app.post('/api/createPosts', verifyToken, (req, res) => {  
-    console.log("token => ",req.token);
-  jwt.verify(req.token, 'secretkey', (err, authData) => {
-    console.log("err ",err)
-    console.log("authdata ",authData);
-    if(err) {
-      res.sendStatus(403);
-    } else {
-      res.json({
-        message: 'Post created...',
-        authData
-      });
-    }
-  });
-});
-
-app.post('/api/login', (req, res) => {
-  // Mock user
-  const user = {
-    id: 1, 
-    username: 'francis',
-    email: 'francis@edulab.in',
-    role:'admin'
+app.post('/api/verify',verifytoken,(req,res)=>{
+ console.log("token==>"+req.token)
+ jwt.verify(req.token, 'privatekey',(err,data)=>{
+  console.log("err ",err)
+  console.log(data)
+  if(err)
+  {
+    res.sendStatus(403)
   }
-
-  jwt.sign({user}, 'secretkey', { expiresIn: '3000s' }, (err, token) => {
-    console.log("login token => ",token);
+  else
+  {
     res.json({
-      token
-    });
-  });
-});
+      message: 'Post created...',
+      data
+    })}
+ })
 
-// FORMAT OF TOKEN
-// Authorization: Bearer <access_token>
 
-// Verify Token
-function verifyToken(req, res, next) {
-  // Get auth header value
-  const bearerHeader = req.headers['authorization'];
-  console.log("bearerHeader =>",bearerHeader);
-  // Check if bearer is undefined
-  if(typeof bearerHeader !== 'undefined') {
-    // Split at the space
-    const bearer = bearerHeader.split(' ');
-    // Get token from array
-    console.log("bearer $$$$ ",bearer);
-    const bearerToken = bearer[1];
-    console.log("bearerToken @@@@ ",bearerToken);
-    // Set the token
-    req.token = bearerToken;
-    // Next middleware
-    next();
-  } else {
-    // Forbidden
-    res.sendStatus(403);
-  }
+
+})
+
+
+function verifytoken(req, res, next){
+  const ms=req.headers['authorization'];
+  console.log(ms)
+if( typeof ms!=='undefined'){
+
+  const sk =ms.split(' ')
+  console.log(sk)
+  const jb=sk[1]
+  console.log(jb)
+  req.token = jb
+  next();
+}
+else
+{
+  res.status(401).json({
+    message: 'Unauthorized'
+  })
+}
+
 
 }
-function print(req,res,next){
-    console.log('@1');
-    next();
-}
-app.listen(5000, () => console.log('Server started on port 5000'));
+
+app.listen(3000,console.log("app starting at port 3000"));
